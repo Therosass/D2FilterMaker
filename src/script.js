@@ -779,20 +779,30 @@ ItemList = [
 		"name" : "Short Sword",
 		"image" : "Short_Sword.jpg",
 		"category" : "One-Handed Swords",
-		"t1visibility" : "ssssssx",
-		"t2visibility" : "ssssssx",
-		"t3visibility" : "ssssssx",
-		"t4visibility" : "ssssssx",
+		"t1visibility" : "ssssssxx",
+		"t2visibility" : "ssssssxx",
+		"t3visibility" : "ssssssxx",
+		"t4visibility" : "ssssssxx",
 		"sacredvisibility" : "ssssssss",
 	},
 	{
 		"name" : "Long Sword",
 		"image" : "Long_Sword.jpg",
 		"category" : "One-Handed Swords",
-		"t1visibility" : "ssssssx",
-		"t2visibility" : "ssssssx",
-		"t3visibility" : "ssssssx",
-		"t4visibility" : "ssssssx",
+		"t1visibility" : "ssssssxx",
+		"t2visibility" : "ssssssxx",
+		"t3visibility" : "ssssssxx",
+		"t4visibility" : "ssssssxx",
+		"sacredvisibility" : "ssssssss",
+	},
+	{
+		"name" : "Claymore",
+		"image" : "Long_Sword.jpg",
+		"category" : "Two-Handed Swords",
+		"t1visibility" : "ssssssxx",
+		"t2visibility" : "ssssssxx",
+		"t3visibility" : "ssssssxx",
+		"t4visibility" : "ssssssxx",
 		"sacredvisibility" : "ssssssss",
 	}
 ];
@@ -1173,6 +1183,9 @@ sideBarElements.forEach(element => {
 	addCategory(element.name)
 });
 
+// Add event listener to subcategory
+subcategoryMenu.addEventListener("change", () => fillItemArea())
+
 // Select default category as Weapons
 CategorySelection("Weapons")
 
@@ -1272,19 +1285,19 @@ function createRadioButton(categoryName, div, state){
 
 function CategorySelection(categoryName){
 	category = subCategoryMap.get(categoryName);
-	
+
 	if(category){
-	  ClearSelectMenu(subcategoryMenu)
-	  currentCategory = categoryName
-	  //setCheckBoxState()
+		ClearSelectMenu(subcategoryMenu)
+	  	currentCategory = categoryName
+	  	//setCheckBoxState()
   
-	  category.forEach(element => {
-		  tempSelection = document.createElement("option")
-		  tempSelection.textContent = element.name
-		  subcategoryMenu.appendChild(tempSelection)
-	  });
+		  category.forEach(element => {
+			tempSelection = document.createElement("option")
+		  	tempSelection.textContent = element.name
+			subcategoryMenu.appendChild(tempSelection)
+	  	});
 	}
-	fillItemArea("One-Handed Swords")
+	fillItemArea()
 };
 
 function ClearSelectMenu(menu){
@@ -1299,21 +1312,29 @@ function ClearSelectMenu(menu){
 	Subcategory main area functions
 */
 
-function fillItemArea(categoryName){
+function fillItemArea(){
+	console.log("dfs")
+	let categoryName = subcategoryMenu.value
+	RemoveIDs("subcategorymainarea")
 	ItemList.forEach(element => {
 		if(element.category == categoryName){
-			addItem(element.name, element.image)
+			addItem(element)
 		}
 	});
 }
 
-function addItem(itemName, imageName){
+function addItem(itemData){
+	let imageName = itemData.image
+	let itemName = itemData.name
+
 	mainItemDiv = document.createElement("div")
 	mainItemDiv.id = "subcategorymainarea"
 
 	mainImageDiv = document.createElement("div")
 	mainImageDiv.id = "subcategoryimagearea"
-	mainImageDiv.textContent = imageName
+	itemImage = document.createElement("img")
+	itemImage.src = "../images/Base_Items/" + imageName
+	mainImageDiv.appendChild(itemImage)
 
 	mainSelectionDiv = document.createElement("div")
 	mainSelectionDiv.id = "subcategorysettingsarea"
@@ -1321,20 +1342,38 @@ function addItem(itemName, imageName){
 	selectionTopBarDiv = document.createElement("div")
 	selectionTopBarDiv.id = "subcategorysettingstitle"
 	selectionTopBarDiv.textContent = itemName
-
-	raritiesDiv = document.createElement("div")
+	
+	let raritiesDiv = document.createElement("div")
 	raritiesDiv.id = "rarites"
-	raritiesDiv.textContent = "Inferior\tNormal\tSuperior\tMagic\tRare\tUnique\tSet\tEthereal"
+
+	addRarityColumn("Inferior", raritiesDiv)
+	addRarityColumn("Normal", raritiesDiv)
+	addRarityColumn("Superior", raritiesDiv)
+	addRarityColumn("Magic", raritiesDiv)
+	addRarityColumn("Rare", raritiesDiv)
+	addRarityColumn("Unique", raritiesDiv)
+	addRarityColumn("Set", raritiesDiv)
+	addRarityColumn("Ethereal", raritiesDiv)
+
 	tier1div = document.createElement("div")
 	tier1div.id = "tier1"
+	addOptions("t1visibility", tier1div, itemData)
+
 	tier2div = document.createElement("div")
 	tier2div.id = "tier2"
+	addOptions("t2visibility", tier2div, itemData)
+	
 	tier3div= document.createElement("div")
 	tier3div.id = "tier3"
+	addOptions("t3visibility", tier3div, itemData)
+	
 	tier4div = document.createElement("div")
 	tier4div.id = "tier4"
+	addOptions("t4visibility", tier4div, itemData)
+	
 	sacreddiv = document.createElement("div")
 	sacreddiv.id = "sacred"
+	addOptions("sacredvisibility", sacreddiv, itemData)
 
 	mainSelectionDiv.appendChild(selectionTopBarDiv)
 	mainSelectionDiv.appendChild(raritiesDiv)
@@ -1350,6 +1389,48 @@ function addItem(itemName, imageName){
 	subcategoryArea.appendChild(mainItemDiv)
 }
 
+function addRarityColumn(columnName, parentDiv){
+	let rarityCol = document.createElement("div")
+	rarityCol.id = "rarityColumn"
+	rarityCol.textContent = columnName
+
+	parentDiv.appendChild(rarityCol)	
+}
+
+function addOptions(visibility, div, itemData){
+	let count = eval("itemData." + visibility).replace(/x*/g,"").length
+	let tierName = document.createElement("div")
+	tierName.id = "tiernamebox";
+	let tier = ""
+	switch(visibility[1]){
+		case "1":
+			tier = "Tier 1: "
+			break;
+		case "2":
+			tier = "Tier 2: "
+			break;
+		case "3":
+			tier = "Tier 3: "
+			break;
+		case "4":
+			tier = "Tier 4: "
+			break;
+		case "a":
+			tier = "Sacred: "
+			break;
+	}
+	tierName.textContent = tier
+	div.appendChild(tierName)
+
+	for(i = 0; i < count; i++){
+		tempButton = document.createElement("button")
+		tempButton.id = "filteractionbutton"
+		tempButton.name = itemData.name
+		tempButton.textContent = "Show"
+		div.appendChild(tempButton)
+	}
+}
+
 /*
 	Helper functions
 */
@@ -1359,4 +1440,12 @@ function recreateNode(old_element) {
 	var new_element = old_element.cloneNode(true);
 	old_element.parentNode.replaceChild(new_element, old_element);
 categoryVisibilityCheckBox = new_element
+}
+
+// Remove all elements with a given ID
+function RemoveIDs(elementID){
+	let element;
+	while(element = document.getElementById(elementID)){
+		element.parentNode.removeChild(element);
+	}
 }
